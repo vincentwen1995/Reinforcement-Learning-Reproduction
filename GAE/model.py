@@ -117,7 +117,7 @@ class MC(BaseMethod):
             # for each episode, only run 9999 steps so that we don't
             # infinite loop while learning
             self.trajectory = []
-            for t in np.arange(1, env.spec.max_episode_steps):
+            for t in np.arange(env.spec.max_episode_steps):
 
                 # select action from policy
                 action, log_prob, state_value = self.select_action(state)
@@ -150,5 +150,5 @@ class MC(BaseMethod):
             # check if we have "solved" the cart pole problem
             if running_reward > env.spec.reward_threshold:
                 print("Solved! Running reward is now {} and "
-                      "the last episode runs to {:3f} time steps!".format(running_reward, t))
+                      "the last episode runs to {:3f} time steps!".format(running_reward, t + 1))
                 break

@@ -6,8 +6,7 @@ class BaseMethod(object):
     """
 
     def __init__(self):
-        """Contructor with parsed args.
-        """
+        pass
 
     def select_action(self):
         raise NotImplementedError('Needs to be overridden in subclasses.')
