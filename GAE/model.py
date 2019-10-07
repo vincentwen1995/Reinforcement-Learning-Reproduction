@@ -16,6 +16,8 @@ EPSILON = np.finfo(np.float32).eps.item()
 
 
 class Policy(nn.Module):
+    """Actor-critic network.
+    """
 
     def __init__(self, num_obs, num_actions, same_network, num_hidden):
         super(Policy, self).__init__()
@@ -41,6 +43,12 @@ class Policy(nn.Module):
 
 
 class MC(BaseMethod):
+    """Monte-carlo method for GAE.
+    """
+
+    def __init__(self, args):
+        super(MC, self).__init__()
+        self.args = args
 
     def select_action(self, state):
         state = torch.tensor(state, dtype=torch.float, device=self.args.device)
@@ -86,7 +94,6 @@ class MC(BaseMethod):
         env = gym.make(self.args.env)
         env.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
-
         self.model = Policy(
             num_obs=get_space_shape(env.observation_space),
             num_actions=get_space_shape(env.action_space),
@@ -96,7 +103,10 @@ class MC(BaseMethod):
         self.model.to(self.args.device)
         optimizer = optim.Adam(self.model.parameters(), lr=self.args.lr)
 
-        running_reward = 10
+        if env.spec.reward_threshold < 0.:
+            running_reward = -200.0
+        else:
+            running_reward = 10.0
 
         for i_episode in np.arange(self.args.episodes):
 
@@ -107,7 +117,7 @@ class MC(BaseMethod):
             # for each episode, only run 9999 steps so that we don't
             # infinite loop while learning
             self.trajectory = []
-            for t in np.arange(1, self.args.max_steps):
+            for t in np.arange(1, env.spec.max_episode_steps):
 
                 # select action from policy
                 action, log_prob, state_value = self.select_action(state)
@@ -140,5 +150,5 @@ class MC(BaseMethod):
             # check if we have "solved" the cart pole problem
             if running_reward > env.spec.reward_threshold:
                 print("Solved! Running reward is now {} and "
-                      "the last episode runs to {} time steps!".format(running_reward, t))
+                      "the last episode runs to {:3f} time steps!".format(running_reward, t))
                 break
