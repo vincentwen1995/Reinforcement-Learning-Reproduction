@@ -71,7 +71,7 @@ def roll_out(actor_network,
     v_final_state = 0  # value for final state
     state = init_state
 
-    for _ in range(step_rollout):
+    for _ in np.arange(step_rollout):
 
         # action
         if is_cont:
@@ -87,7 +87,7 @@ def roll_out(actor_network,
 
             action_dist = Categorical(softmax_action)
             action = action_dist.sample().item()
-            one_hot_action = [int(k == action) for k in range(action_dim)]
+            one_hot_action = [int(k == action) for k in np.arange(action_dim)]
 
         # take action
         next_state, reward, done, _ = env.step(action)
@@ -115,22 +115,22 @@ def roll_out(actor_network,
 def discount_reward(r, gamma, v_final_state):
     discounted_r = np.zeros_like(r)
     running_add = v_final_state
-    for t in reversed(range(0, len(r))):
+    for t in reversed(np.arange(len(r))):
         running_add = running_add * gamma + r[t]
         discounted_r[t] = running_add
     return discounted_r
 
 
 def train():
-    # for env, state_dim, action_dim, step_rollouts in \
+    # for env_name, state_dim, action_dim, step_rollouts in \
             # zip(['CartPole-v0', 'Pendulum-v0'], [4, 3], [2, 1], [[1, 10, 40, 80, 150, 200], [1, 10, 40, 80, 150, 200]]):
-    for env, state_dim, action_dim, step_rollouts in \
+    for env_name, state_dim, action_dim, step_rollouts in \
             zip(['Pendulum-v0'], [3], [1], [[1, 10, 40, 80, 150, 200]]):
-        # for env, state_dim, action_dim, step_rollouts in \
+        # for env_name, state_dim, action_dim, step_rollouts in \
             # zip(['CartPole-v0'], [4], [2], [[1, 10, 40, 80, 150, 200]]):
 
-        print('Env: {}'.format(env))
-        if env == 'CartPole-v0':
+        print('Env: {}'.format(env_name))
+        if env_name == 'CartPole-v0':
             is_cont = False
         else:
             is_cont = True
@@ -138,9 +138,9 @@ def train():
             print('Seed: {}'.format(seed))
             for step_rollout in step_rollouts:
                 print('Step Rollout: {}'.format(step_rollout))
-                result_file_name = 'results/' + env + '_' + str(seed) + "_" + str(step_rollout) + ".npy"
+                result_file_name = 'results/' + env_name + '_' + str(seed) + '_' + str(step_rollout) + '.npy'
                 # train env
-                env = gym.make(env)
+                env = gym.make(env_name)
                 env.seed(seed)
                 init_state = env.reset()
                 # test env
@@ -165,7 +165,7 @@ def train():
 
                 total_test_rewards = []
 
-                for step in range(STEP):
+                for step in np.arange(STEP):
                     # collect data for n-step rollouts
                     states, actions, rewards, v_final_state, current_state = roll_out(
                         actor_network, value_network, env, step_rollout, init_state, action_dim, is_cont=is_cont)
@@ -216,7 +216,7 @@ def train():
                     with torch.no_grad():
                         if (step + 1) % TEST_INTERVAL == 0:
                             test_rewards = []
-                            for _ in range(N_TEST_EPI):
+                            for _ in np.arange(N_TEST_EPI):
 
                                 test_state = test_env.reset()
                                 test_ep_reward = 0
@@ -255,6 +255,6 @@ def train():
                             # collect rewards for every testing
                             total_test_rewards.append(test_rewards)
 
-                            print("Step:", step+1, "Average test rewards:", np.mean(test_rewards))
+                            print("Step: {}, Average test rewards: {}".format(step + 1, np.mean(test_rewards)))
 
                 np.save(result_file_name, np.array(total_test_rewards))
