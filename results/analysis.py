@@ -34,15 +34,15 @@ def analyze():
             file_name = file_.split('_')
             if file_name[0] == 'CartPole-v0':
                 CartPole[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
-            # elif file_name[0] == 'MountainCar-v0':
-            #     MountainCar[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
-            # elif file_name[0] == 'Acrobot-v1':
-            #     Acrobot[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
+            elif file_name[0] == 'MountainCar-v0':
+                MountainCar[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
+            elif file_name[0] == 'Acrobot-v1':
+                Acrobot[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
             elif file_name[0] == 'Pendulum-v0':
-                Pendulum[int(file_name[1])][int(file_[2][:-4])] = np.load(os.path.join('results/', file_))
+                Pendulum[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
 
     for env, step_rollouts in \
-            zip(["CartPole-v0", "MountainCar-v0", 'Acrobot-v1'], [[1, 10, 40, 80, 150, 200], [1, 10, 40, 80, 150, 200], [1, 30, 60, 100, 300, 500]]):
+            zip(["CartPole-v0", "MountainCar-v0", 'Acrobot-v1', 'Pendulum-v0'], [[1, 10, 40, 80, 150, 200], [1, 10, 40, 80, 150, 200], [1, 30, 60, 100, 300, 500], [1, 10, 40, 80, 150, 200]]):
         # env = 'CartPole-v0'
         # step_rollouts = [1, 10, 40, 80, 150, 200]
         plt.figure(figsize=(10, 5))
@@ -68,6 +68,7 @@ def analyze():
             rewards = np.hstack(rewards)
             mean = rewards.mean(axis=1)
             std = rewards.std(axis=1)
+            # plt.errorbar(np.arange(100), mean, yerr=std, solid_capstyle='projecting', capsize=5, label='n={}'.format(step_rollout))
             plt.plot(mean)
             plt.fill_between(np.arange(100), mean - std, mean + std, alpha=0.3, label='n={}'.format(step_rollout))
         plt.xlabel('Step (x100)')
