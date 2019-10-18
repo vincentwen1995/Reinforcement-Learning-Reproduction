@@ -42,7 +42,8 @@ def analyze():
                 Pendulum[int(file_name[1])][int(file_name[2][:-4])] = np.load(os.path.join('results/', file_))
 
     for env, step_rollouts in \
-            zip(["CartPole-v0", "MountainCar-v0", 'Acrobot-v1', 'Pendulum-v0'], [[1, 10, 40, 80, 150, 200], [1, 10, 40, 80, 150, 200], [1, 30, 60, 100, 300, 500], [1, 10, 40, 80, 150, 200]]):
+            zip(["CartPole-v0", "MountainCar-v0", 'Acrobot-v1', 'Pendulum-v0'], [[1, 40, 150, 200], [1, 40, 150, 200], [1, 60, 300, 500], [1, 40, 150, 200]]):
+            # zip(["CartPole-v0", "MountainCar-v0", 'Acrobot-v1', 'Pendulum-v0'], [[1, 10, 40, 80, 150, 200], [1, 10, 40, 80, 150, 200], [1, 30, 60, 100, 300, 500], [1, 10, 40, 80, 150, 200]]):
         # env = 'CartPole-v0'
         # step_rollouts = [1, 10, 40, 80, 150, 200]
         plt.figure(figsize=(10, 5))
@@ -68,12 +69,14 @@ def analyze():
             rewards = np.hstack(rewards)
             mean = rewards.mean(axis=1)
             std = rewards.std(axis=1)
-            # plt.errorbar(np.arange(100), mean, yerr=std, solid_capstyle='projecting', capsize=5, label='n={}'.format(step_rollout))
+            # plt.errorbar(np.arange(100), mean, yerr=std, solid_capstyle='projecting', capsize=3, label='n={}'.format(step_rollout), errorevery=10)
             plt.plot(mean)
             plt.fill_between(np.arange(100), mean - std, mean + std, alpha=0.3, label='n={}'.format(step_rollout))
+            plt.xlim([0, 30])
         plt.xlabel('Step (x100)')
         plt.ylabel('Average Return')
         # plt.title('{} Seed={}'.format(env, seed))
         plt.title('{}'.format(env))
         plt.legend()
-        plt.show()
+        plt.savefig('results/{}_focused.pdf'.format(env))
+        # plt.show()
